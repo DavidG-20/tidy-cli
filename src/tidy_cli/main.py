@@ -68,6 +68,9 @@ def _handle_undo(target: Path, dry_run: bool) -> None:
             f"[green]Deshecho:[/green] se restauraron {len(result.completed)} archivo(s)."
         )
 
+    if result.errors and not result.completed:
+        raise typer.Exit(code=1)
+
 
 def _handle_organize(plan: OrganizePlan, dry_run: bool) -> None:
     """Execute or preview an organization plan and print the summary."""

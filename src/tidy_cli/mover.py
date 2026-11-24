@@ -31,8 +31,13 @@ def _save_history(target_dir: Path, moves: list[MoveAction]) -> None:
 def _load_history(history_path: Path) -> list[dict[str, object]]:
     """Read recorded move entries from the history JSON file."""
     data = json.loads(history_path.read_text(encoding="utf-8"))
+    if not isinstance(data, dict):
+        raise ValueError("Invalid history file structure.")
     moves = data.get("moves", [])
-    if not isinstance(moves, list):
+    if not isinstance(moves, list) or not all(
+        isinstance(item, dict) and "source" in item and "destination" in item
+        for item in moves
+    ):
         raise ValueError("Invalid history file format.")
     return moves
 
