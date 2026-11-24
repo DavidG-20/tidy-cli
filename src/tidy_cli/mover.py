@@ -89,11 +89,20 @@ def undo_last_run(target_dir: Path, dry_run: bool = False) -> ExecutionResult:
         result.errors.append("No moves recorded to undo.")
         return result
 
+    target_root = target_dir.resolve()
     reserved: set[Path] = set()
     for entry in reversed(entries):
-        current_path = Path(str(entry["destination"]))
-        original_path = Path(str(entry["source"]))
+        current_path = Path(str(entry["destination"])).resolve()
+        original_path = Path(str(entry["source"])).resolve()
         category = str(entry.get("category", "Others"))
+
+        if not current_path.is_relative_to(target_root) or not original_path.is_relative_to(
+            target_root
+        ):
+            result.errors.append(
+                f"Blocked unsafe path outside target directory: {entry.get('destination')}"
+            )
+            continue
 
         if not current_path.exists():
             result.errors.append(f"Skipped missing file: {current_path}")

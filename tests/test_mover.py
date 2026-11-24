@@ -72,3 +72,20 @@ def test_undo_does_not_overwrite_new_file_at_original_path(tmp_path: Path) -> No
     assert not undo_result.errors
     assert (tmp_path / "script.py").read_text(encoding="utf-8") == "brand-new"
     assert (tmp_path / "script (1).py").read_text(encoding="utf-8") == "old-version"
+
+
+def test_undo_blocks_path_traversal_in_tampered_history(tmp_path: Path) -> None:
+    outside_file = tmp_path.parent / f"{tmp_path.name}_outside.txt"
+    outside_file.write_text("keep-safe", encoding="utf-8")
+    try:
+        history = tmp_path / HISTORY_FILENAME
+        history.write_text(
+            f'{{"moves": [{{"source": "{outside_file}", "destination": "{outside_file}", "category": "Others"}}]}}',
+            encoding="utf-8",
+        )
+        result = undo_last_run(tmp_path)
+        assert not result.completed
+        assert any("unsafe path" in err.lower() for err in result.errors)
+        assert outside_file.exists()
+    finally:
+        outside_file.unlink(missing_ok=True)
