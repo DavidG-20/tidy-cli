@@ -101,6 +101,9 @@ def _handle_organize(plan: OrganizePlan, dry_run: bool) -> None:
             "[green]¡Listo![/green] Ejecuta con [bold]--undo[/bold] si quieres revertir."
         )
 
+    if result.errors:
+        raise typer.Exit(code=1)
+
 
 @app.command()
 def organize(
