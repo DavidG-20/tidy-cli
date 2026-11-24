@@ -1,7 +1,7 @@
 [project]
 name = "tidy-cli"
 version = "0.1.0"
-description = "Safe CLI tool to automatically organize files by category with dry-run and undo support."
+description = "Herramienta CLI segura en Python para organizar archivos por categoría con --dry-run y --undo."
 readme = "README.md"
 authors = [
     { name = "David Garcia Garcia", email = "davidgarcia20.academico@gmail.com" }

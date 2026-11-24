@@ -12,7 +12,7 @@ from tidy_cli.scanner import build_plan
 
 app = typer.Typer(
     name="tidy",
-    help="Organize files in a folder by category safely (with --dry-run and --undo).",
+    help="Organiza los archivos de una carpeta por categoría de forma segura (con --dry-run y --undo).",
     no_args_is_help=True,
 )
 console = Console()
@@ -25,15 +25,17 @@ def _render_actions(
 ) -> None:
     """Display planned or completed moves in a Rich table."""
     table = Table(title=title, show_lines=False)
-    table.add_column("From", style="bold")
-    table.add_column("Category", style="cyan")
-    table.add_column("To", style="green")
+    table.add_column("Origen", style="bold")
+    table.add_column("Categoría", style="cyan")
+    table.add_column("Destino", style="green")
 
     for action in actions:
         src_label = str(action.source.relative_to(target_dir))
         dest_rel = action.destination.relative_to(target_dir)
         dest_label = (
-            f"{dest_rel} [yellow](renamed)[/yellow]" if action.renamed else str(dest_rel)
+            f"{dest_rel} [yellow](renombrado)[/yellow]"
+            if action.renamed
+            else str(dest_rel)
         )
         table.add_row(src_label, action.category, dest_label)
 
@@ -51,46 +53,50 @@ def _handle_undo(target: Path, dry_run: bool) -> None:
     result = undo_last_run(target, dry_run=dry_run)
     if result.completed:
         title = (
-            f"Undo dry-run preview for {target}"
+            f"Vista previa de deshacer en {target}"
             if dry_run
-            else f"Restored files in {target}"
+            else f"Archivos restaurados en {target}"
         )
         _render_actions(result.completed, target, title)
 
     _render_errors(result)
 
     if dry_run and result.completed:
-        console.print("[cyan]Dry-run mode:[/cyan] no files were moved.")
+        console.print("[cyan]Modo simulación:[/cyan] no se movió ningún archivo.")
     elif result.completed:
-        console.print(f"[green]Undone:[/green] restored {len(result.completed)} file(s).")
+        console.print(
+            f"[green]Deshecho:[/green] se restauraron {len(result.completed)} archivo(s)."
+        )
 
 
 def _handle_organize(plan: OrganizePlan, dry_run: bool) -> None:
     """Execute or preview an organization plan and print the summary."""
     if not plan.actions:
         console.print(
-            f"[green]Nothing to organize in {plan.target_dir}[/green] "
-            f"(skipped: {plan.skipped_count})."
+            f"[green]No hay archivos por organizar en {plan.target_dir}[/green] "
+            f"(omitidos: {plan.skipped_count})."
         )
         return
 
     result = execute_plan(plan, dry_run=dry_run)
     title = (
-        f"Dry-run preview for {plan.target_dir}"
+        f"Vista previa (--dry-run) para {plan.target_dir}"
         if dry_run
-        else f"Organized {plan.target_dir}"
+        else f"Carpeta organizada: {plan.target_dir}"
     )
     _render_actions(result.completed, plan.target_dir, title)
     _render_errors(result)
 
     console.print(
-        f"[dim]Processed: {len(result.completed)} file(s) | "
-        f"Skipped (hidden/dirs/symlinks): {plan.skipped_count}[/dim]"
+        f"[dim]Procesados: {len(result.completed)} archivo(s) | "
+        f"Omitidos (ocultos/carpetas/symlinks): {plan.skipped_count}[/dim]"
     )
     if dry_run:
-        console.print("[cyan]Dry-run mode:[/cyan] no files were moved.")
+        console.print("[cyan]Modo simulación:[/cyan] no se movió ningún archivo.")
     else:
-        console.print("[green]Done![/green] Run with [bold]--undo[/bold] to revert.")
+        console.print(
+            "[green]¡Listo![/green] Ejecuta con [bold]--undo[/bold] si quieres revertir."
+        )
 
 
 @app.command()
@@ -101,21 +107,21 @@ def organize(
         file_okay=False,
         dir_okay=True,
         resolve_path=True,
-        help="Path to the folder you want to organize.",
+        help="Ruta de la carpeta que deseas organizar.",
     ),
     dry_run: bool = typer.Option(
         False,
         "--dry-run",
         "-n",
-        help="Preview what would be moved without touching any files.",
+        help="Muestra qué se movería sin tocar ningún archivo.",
     ),
     undo: bool = typer.Option(
         False,
         "--undo",
-        help="Revert the last organization performed in this folder.",
+        help="Revierte el último ordenamiento realizado en esta carpeta.",
     ),
 ) -> None:
-    """Organize files inside TARGET into category subfolders."""
+    """Organiza los archivos dentro de TARGET en subcarpetas por categoría."""
     if undo:
         _handle_undo(target, dry_run=dry_run)
         return

@@ -1,41 +1,41 @@
 # tidy-cli
 
-A safe, fast Python CLI tool that automatically organizes files in any folder into clean category subfolders — with **dry-run previews**, **duplicate protection**, and **one-command undo**.
+Herramienta de línea de comandos (CLI) en Python para organizar automáticamente los archivos de cualquier carpeta en subcarpetas por categoría, con **modo simulación (`--dry-run`)**, **protección contra duplicados** y **deshacer en un comando (`--undo`)**.
 
-## Features
+## Características principales
 
-- **Smart categorization**: Groups files into `Documents`, `Images`, `Videos`, `Audio`, `Archives`, `Code`, `Installers`, and `Others` based on centralized rules in `src/tidy_cli/config.py`.
-- **Dry-run mode (`--dry-run` / `-n`)**: Preview every planned move in a formatted table without touching a single file.
-- **Duplicate protection**: Never overwrites existing files — automatically renames collisions with incremental suffixes (e.g. `report.pdf` → `report (1).pdf`).
-- **Safe by design**: Never deletes user files or folders, and automatically skips hidden files (`.env`, `.git`), subdirectories, and symbolic links.
-- **Undo support (`--undo`)**: Saves a `.tidy_history.json` log so you can revert the last run cleanly (even supporting `--undo --dry-run`).
+- **Clasificación automática**: agrupa archivos en `Documents`, `Images`, `Videos`, `Audio`, `Archives`, `Code`, `Installers` y `Others` según las reglas centralizadas en `src/tidy_cli/config.py`.
+- **Modo simulación (`--dry-run` / `-n`)**: muestra una tabla previa con los cambios que se harían **sin mover ningún archivo**.
+- **Protección contra duplicados**: nunca sobrescribe archivos existentes; si ya hay un archivo con el mismo nombre, lo renombra automáticamente con sufijo numérico (ej. `tarea.pdf` → `tarea (1).pdf`).
+- **Seguro por diseño**: nunca elimina archivos ni carpetas del usuario, e ignora automáticamente archivos ocultos (`.env`, `.git`), subcarpetas y enlaces simbólicos.
+- **Historial y deshacer (`--undo`)**: guarda un registro en `.tidy_history.json` para devolver todos los archivos a su ubicación original (incluso admite `--undo --dry-run`).
 
-## Tech Stack & Architecture
+## Tecnologías y arquitectura
 
-- **Python 3.10+** managed with [`uv`](https://docs.astral.sh/uv/) (`pyproject.toml` + `uv.lock`)
-- **Typer** for CLI commands and argument validation
-- **Rich** for clean terminal tables and styled output
-- **pytest** for isolated automated tests (`tmp_path`)
+- **Python 3.10+** gestionado con [`uv`](https://docs.astral.sh/uv/) (`pyproject.toml` + `uv.lock`)
+- **Typer** para comandos y validación de argumentos en terminal
+- **Rich** para tablas y salida con colores
+- **pytest** para pruebas automatizadas aisladas (`tmp_path`)
 
 ```text
 tidy-cli/
-├── .agents/skills/          # Agent skills (architecture & file safety rules)
-├── AGENTS.md                # Project-level rules
+├── .agents/skills/          # Skills de arquitectura y seguridad de archivos
+├── AGENTS.md                # Reglas generales del proyecto
 ├── src/tidy_cli/
-│   ├── main.py              # Presentation layer (Typer + Rich only)
-│   ├── config.py            # Extension → category mapping
-│   ├── models.py            # Typed dataclasses (MoveAction, OrganizePlan, ExecutionResult)
-│   ├── scanner.py           # Pure scanning & classification logic
-│   └── mover.py             # Safe file moves & JSON undo history
+│   ├── main.py              # Capa de presentación (solo Typer + Rich)
+│   ├── config.py            # Mapa de extensiones → categorías
+│   ├── models.py            # Dataclasses tipados (MoveAction, OrganizePlan, ExecutionResult)
+│   ├── scanner.py           # Lógica pura de escaneo y clasificación
+│   └── mover.py             # Movimiento seguro e historial JSON para --undo
 ├── tests/
-│   ├── test_scanner.py      # Scanner & duplicate-resolution tests
-│   └── test_mover.py        # Dry-run, move, and undo roundtrip tests
+│   ├── test_scanner.py      # Pruebas de escaneo y resolución de duplicados
+│   └── test_mover.py        # Pruebas de dry-run, movimiento y deshacer
 └── pyproject.toml
 ```
 
-## Installation
+## Instalación
 
-Make sure you have [`uv`](https://docs.astral.sh/uv/) installed, then clone and sync the project:
+Asegúrate de tener [`uv`](https://docs.astral.sh/uv/) instalado, luego clona el repositorio y sincroniza dependencias:
 
 ```bash
 git clone https://github.com/DavidG-20/tidy-cli.git
@@ -43,40 +43,40 @@ cd tidy-cli
 uv sync
 ```
 
-## Usage
+## Uso
 
-Preview changes without moving any files:
+Previsualizar cambios sin mover archivos:
 
 ```bash
 uv run tidy ~/Downloads --dry-run
 ```
 
-Organize a folder:
+Organizar una carpeta:
 
 ```bash
 uv run tidy ~/Downloads
 ```
 
-Revert the last organization in that folder:
+Deshacer el último ordenamiento en esa carpeta:
 
 ```bash
 uv run tidy ~/Downloads --undo
 ```
 
-Show help:
+Ver la ayuda completa:
 
 ```bash
 uv run tidy --help
 ```
 
-## Running Tests
+## Ejecutar pruebas
 
-All tests run in isolated temporary directories (`pytest`'s `tmp_path` fixture):
+Todas las pruebas corren sobre carpetas temporales aisladas (`tmp_path` de `pytest`):
 
 ```bash
 uv run pytest -v
 ```
 
-## License
+## Licencia
 
 MIT
