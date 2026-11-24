@@ -1,0 +1,25 @@
+[project]
+name = "tidy-cli"
+version = "0.1.0"
+description = "Safe CLI tool to automatically organize files by category with dry-run and undo support."
+readme = "README.md"
+authors = [
+    { name = "David Garcia Garcia", email = "davidgarcia20.academico@gmail.com" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "rich>=15.0.0",
+    "typer>=0.29.2",
+]
+
+[project.scripts]
+tidy = "tidy_cli.main:app"
+
+[build-system]
+requires = ["uv_build>=0.13.9,<0.14.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.2.0",
+]
